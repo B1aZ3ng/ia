@@ -28,6 +28,6 @@ class gameServer(db.Model):
     serverLocation = mapped_column(String(256), nullable=False)
     userId = mapped_column(Integer, db.ForeignKey('user.userId'), nullable=False)
 
-
-with app.app_context():
-    db.create_all()
+if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()

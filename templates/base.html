@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>{% block title %}My App{% endblock %}</title>
+</head>
+
+<body>
+    {% for category, msg in get_flashed_messages(with_categories=true) %}
+    <h3 class="{{ category }}">{{ msg }}</h3>
+    {% endfor %}
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+</body>
