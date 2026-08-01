@@ -1,0 +1,30 @@
+{
+    "Minecraft": {
+        "Paper": {
+            "26.2": {
+                "download": "https://fill-data.papermc.io/v1/objects/3ab7536642d04c504a06fe43174b8a94f8c5f25d5847d4672212413f6e54b906/paper-26.2-87.jar",
+                "memory": "4G"
+            },
+            "1.21": {
+                "download": "https://api.papermc.io/...",
+                "memory": "6G"
+            }
+        },
+        "Spigot": {
+            "1.20.4": {
+                "download": "https://hub.spigotmc.org/...",
+                "memory": "4G"
+            }
+        },
+        "Vanilla": {
+            "1.21": {
+                "download": "https://minecraft.net/server.jar",
+                "memory": "2G"
+            }
+        }
+    },
+    "Terraria": {
+        "download": "https://terraria.org/server.zip",
+        "memory": "2G"
+    }
+}

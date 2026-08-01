@@ -13,5 +13,5 @@ def dashboard ():
     return render_template('dashboard.html')
 
 @dash.route('/dashboard', methods=['GET','POST'])
-def dashboard ():
+def dashboard_settings ():
     return render_template('dashboard_settings.html')

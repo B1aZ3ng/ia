@@ -18,5 +18,5 @@ class User(db.Model):
 class gameServer(db.Model):
     serverId = mapped_column(Integer, primary_key=True)
     serverName = mapped_column(String(16), unique=True, nullable=False)
-    serverLocation = mapped_column(String(256), nullable=False)
-    userId = mapped_column(Integer, db.ForeignKey("user.userId"), nullable=False)
+    serverPath = mapped_column(String(256), nullable=False)
+    ownerID = mapped_column(Integer, db.ForeignKey("user.userId"), nullable=False)
