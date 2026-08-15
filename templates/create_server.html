@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}{{ Create Server }}{% endblock %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+<section>
+    <form method="post">
+        <input type="text" placeholder="Server Name" name="serverName">
+        <input type="text" placeholder="Game Type" name="gameType">
+        <input type="text" placeholder="Type of Server" name="serverType">
+        <input type="text" placeholder="Version" name="version">
+        <button type="submit">Login</button>
+
+    </form>
+</section>
+{% block content %}

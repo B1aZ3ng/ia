@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+
+{% block head %}
+
+<style>
+    .dashboard-container {
+
+        padding: 20px;
+
+        display: grid;
+
+        grid-template-columns: repeat(2, 1fr);
+
+        gap: 20px;
+
+    }
+
+
+    .server-card {
+
+        background: #1b1b1b;
+
+        border: 1px solid #333;
+
+        border-radius: 12px;
+
+        padding: 20px;
+
+        min-height: 180px;
+
+    }
+
+
+    .server-title {
+
+        font-size: 22px;
+
+        font-weight: bold;
+
+        margin-bottom: 15px;
+
+    }
+
+
+    .server-info {
+
+        color: #aaa;
+
+        margin: 8px 0;
+
+    }
+
+
+    .status {
+
+        font-weight: bold;
+
+    }
+
+
+    .online {
+
+        color: #4caf50;
+
+    }
+
+
+    .offline {
+
+        color: #ff5555;
+
+    }
+
+
+    .server-buttons {
+
+        margin-top: 20px;
+
+    }
+
+
+    button {
+
+        background: #333;
+
+        color: white;
+
+        border: none;
+
+        padding: 10px 15px;
+
+        border-radius: 6px;
+
+        cursor: pointer;
+
+    }
+
+
+    button:hover {
+
+        background: #444;
+
+    }
+
+
+    @media(max-width:700px) {
+
+        .dashboard-container {
+
+            grid-template-columns: 1fr;
+
+        }
+
+    }
+</style>
+
+{% endblock %}
+
+
+
+{% block content %}
+
+
+<div class="dashboard-container">
+
+
+    {% for server in servers %}
+
+
+    <div class="server-card">
+
+
+        <div class="server-title">
+            {{ server.serverName }}
+        </div>
+
+
+        <div class="server-info">
+            Type: {{ server.gameType }}
+        </div>
+
+
+
+        <div class="server-info">
+
+            Status:
+
+            {% if server.running %}
+
+            <span class="status online">
+                ONLINE
+            </span>
+
+            {% else %}
+
+            <span class="status offline">
+                OFFLINE
+            </span>
+
+            {% endif %}
+
+
+        </div>
+
+
+        <div class="server-buttons">
+
+            <button>
+                Start
+            </button>
+
+
+            <button>
+                Stop
+            </button>
+
+        </div>
+
+
+    </div>
+
+
+    {% else %}
+
+
+    <p>
+        No game servers found.
+    </p>
+
+
+    {% endfor %}
+
+
+</div>
+
+
+{% endblock %}

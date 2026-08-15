@@ -2,15 +2,106 @@
 <html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>{% block title %}My App{% endblock %}</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            width: 100%;
+            min-height: 100%;
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: #eee;
+        }
+
+        /* Top application banner */
+        .topbar {
+            height: 56px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .dashboard-link {
+            color: #eee;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .dashboard-link:hover {
+            color: #4da3ff;
+        }
+
+        .account-name {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        /* Flash messages */
+        .flash-messages {
+            padding: 10px 20px;
+        }
+
+        .flash-messages h3 {
+            margin: 5px 0;
+        }
+
+        main {
+            width: 100%;
+        }
+    </style>
+
+    {% block head %}{% endblock %}
 </head>
 
 <body>
-    {% for category, msg in get_flashed_messages(with_categories=true) %}
-    <h3 class="{{ category }}">{{ msg }}</h3>
-    {% endfor %}
+
+    <header class="topbar">
+        <div class="topbar-left">
+            <a href="/dashboard" class="dashboard-link">
+                Dashboard
+            </a>
+        </div>
+
+        <div class="account-name">
+            {{ accountName }}
+        </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+        {% for category, msg in messages %}
+        <h3 class="{{ category }}">{{ msg }}</h3>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
     <main>
         {% block content %}
         {% endblock %}
     </main>
+
 </body>
+
+</html>
