@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, redirect, session, flash, url
 from database import db, User, GameServer
 from sqlalchemy import select,update
 import globals
-from game import GameCreator
+from game_creator import GameCreator
 
 gc = GameCreator()
 
@@ -17,12 +17,12 @@ def index():
     id = session.get("userId")
 
     servers = []
-
+    
     for key in globals.GAME_SERVERS[id]:
         sv = globals.GAME_SERVERS[id][key]
         servers.append({"serverName":sv.getName(),"gameType":sv.gameType,"serverId":key,"running":sv.isOn()})
     
-
+    #if 
 
     
     return render_template("dashboard.html",servers=servers,accountName=session.get("username"))
@@ -39,9 +39,10 @@ def create_server():
         gameType = request.form.get("gameType")
         match gameType:
             case "Minecraft":
+
                 serverType = request.form.get("serverType")
                 version = request.form.get("version")
-                newGame = GameServer(serverName=serverName, gameType=gameType, serverPath = None, ownerId = session.get("id"))
+                newGame = GameServer(serverName=serverName, gameType=gameType, serverPath = None, ownerId = session.get("userId"))
 
                 db.session.add(newGame)
                 db.session.commit()
@@ -57,4 +58,4 @@ def create_server():
         
 
 
-    return render_template("dashboard_create_server.html",accountName=session.get("username"))
+    return render_template("create_server.html",accountName=session.get("username"))

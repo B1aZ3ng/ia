@@ -9,78 +9,52 @@ Dashboard
 
 <style>
     .dashboard-container {
-
         padding: 20px;
-
         display: grid;
-
         grid-template-columns: repeat(2, 1fr);
-
         gap: 20px;
-
     }
 
 
     .server-card {
-
         background: #1b1b1b;
-
         border: 1px solid #333;
-
         border-radius: 12px;
-
         padding: 20px;
-
         min-height: 180px;
-
     }
 
 
     .server-title {
-
         font-size: 22px;
-
         font-weight: bold;
-
         margin-bottom: 15px;
-
     }
 
 
     .server-info {
-
         color: #aaa;
-
         margin: 8px 0;
-
     }
 
 
     .status {
-
         font-weight: bold;
-
     }
 
 
     .online {
-
         color: #4caf50;
-
     }
 
 
     .offline {
-
         color: #ff5555;
-
     }
 
 
     .server-buttons {
-
         margin-top: 20px;
-
     }
 
 
@@ -125,16 +99,14 @@ Dashboard
 
 {% block content %}
 
+<a href="/dashboard/create">
+    <button>Create Server</button>
+</a>
 
 <div class="dashboard-container">
-
-
     {% for server in servers %}
 
-
     <div class="server-card">
-
-
         <div class="server-title">
             {{ server.serverName }}
         </div>
@@ -169,10 +141,10 @@ Dashboard
 
 
         <div class="server-buttons">
-
             <button>
                 Start
             </button>
+
 
 
             <button>
@@ -183,6 +155,7 @@ Dashboard
 
 
     </div>
+
 
 
     {% else %}

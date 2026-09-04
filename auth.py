@@ -4,7 +4,7 @@ import dashboard
 from database import db, User, GameServer
 from hashlib import sha1
 from sqlalchemy import select
-
+from game_creator import loadGames
 
 
 auth = flask.Blueprint('auth', __name__)
@@ -13,12 +13,16 @@ auth = flask.Blueprint('auth', __name__)
 def login():
     if request.method == 'POST':
         username = request.form.get("username")
-        passwordhash = sha1(request.form.get("password").encode('utf-8')).hexdigest() #hashes it sha256
-        match_pwd_hash = db.session.execute(select(User.passwordHash).where(User.username == username)).scalar_one() #gets associated hashed pwd to username, if !exist then None
-        if match_pwd_hash is None: #username not in database
+        
+        
+        if not db.session.scalar(db.select(db.exists().where(User.username == username))):# username not in database #username not in database
             flash("Username does not exist")
             return render_template('login.html')
-        elif match_pwd_hash!=passwordhash: #need [0] becuase its outputs a set
+
+        passwordhash = sha1(request.form.get("password").encode('utf-8')).hexdigest() #hashes it sha256
+        match_pwd_hash = db.session.execute(select(User.passwordHash).where(User.username == username)).scalar_one() #gets associated hashed pwd to username, if !exist then None
+
+        if match_pwd_hash != passwordhash: #need [0] becuase its outputs a set
             flash("Password is wrong")
             return render_template('login.html')
         else:
@@ -55,6 +59,7 @@ def signup():
                 db.session.add(newUser)
                 db.session.commit()
                 flash ("Account succesfully created for:", username)
+                loadGames
                 return redirect(url_for("index"))
                 
     return render_template('signup.html')
