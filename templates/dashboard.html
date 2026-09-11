@@ -141,15 +141,14 @@ Dashboard
 
 
         <div class="server-buttons">
-            <button>
-                Start
-            </button>
 
+            <form action="/dashboard/server/{{ server.id }}/start" method="POST" style="display:inline;">
+                <button type="submit">Start</button>
+            </form>
 
-
-            <button>
-                Stop
-            </button>
+            <form action="/dashboard/server/{{ server.id }}/stop" method="POST" style="display:inline;">
+                <button type="submit">Stop</button>
+            </form>
 
         </div>
 
