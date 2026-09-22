@@ -58,7 +58,7 @@ def signup():
                 newUser = User(username=username,passwordHash=passwordhash)
                 db.session.add(newUser)
                 db.session.commit()
-                flash ("Account succesfully created for:", username)
+                flash ("Account succesfully created for: "+ username)
                 load_games()
                 return redirect(url_for("index"))
                 
