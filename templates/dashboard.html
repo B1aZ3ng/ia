@@ -15,6 +15,10 @@ Dashboard
         gap: 20px;
     }
 
+    .server-link {
+        text-decoration: none;
+        color: inherit;
+    }
 
     .server-card {
         background: #1b1b1b;
@@ -24,6 +28,9 @@ Dashboard
         min-height: 180px;
     }
 
+    .server-card:hover {
+        border-color: #555;
+    }
 
     .server-title {
         font-size: 22px;
@@ -31,70 +38,48 @@ Dashboard
         margin-bottom: 15px;
     }
 
-
     .server-info {
         color: #aaa;
         margin: 8px 0;
     }
 
-
     .status {
         font-weight: bold;
     }
-
 
     .online {
         color: #4caf50;
     }
 
-
     .offline {
         color: #ff5555;
     }
-
 
     .server-buttons {
         margin-top: 20px;
     }
 
-
     button {
-
         background: #333;
-
         color: white;
-
         border: none;
-
         padding: 10px 15px;
-
         border-radius: 6px;
-
         cursor: pointer;
-
     }
-
 
     button:hover {
-
         background: #444;
-
     }
 
-
     @media(max-width:700px) {
-
         .dashboard-container {
-
             grid-template-columns: 1fr;
-
         }
-
     }
 </style>
 
 {% endblock %}
-
 
 
 {% block content %}
@@ -104,71 +89,65 @@ Dashboard
 </a>
 
 <div class="dashboard-container">
+
     {% for server in servers %}
 
-    <div class="server-card">
-        <div class="server-title">
-            {{ server.serverName }}
+    <a href="/server/{{ server.serverId }}/console" class="server-link">
+        <div class="server-card">
+
+            <div class="server-title">
+                {{ server.serverName }}
+            </div>
+
+            <div class="server-info">
+                Type: {{ server.gameType }}
+            </div>
+
+            <div class="server-info">
+                Status:
+
+                {% if server.running %}
+                <span class="status online">
+                    ONLINE
+                </span>
+                {% else %}
+                <span class="status offline">
+                    OFFLINE
+                </span>
+                {% endif %}
+            </div>
+
+            <div class="server-info">
+                IP: {{ server.join }}
+            </div>
+
+            <div class="server-buttons">
+
+                <form action="/server/{{ server.serverId }}/start" method="POST" style="display:inline;">
+
+                    <button type="submit">Start</button>
+
+                </form>
+
+                <form action="/server/{{ server.serverId }}/stop" method="POST" style="display:inline;">
+
+                    <button type="submit">Stop</button>
+
+                </form>
+
+            </div>
+
         </div>
-
-
-        <div class="server-info">
-            Type: {{ server.gameType }}
-        </div>
-
-
-
-        <div class="server-info">
-
-            Status:
-
-            {% if server.running %}
-
-            <span class="status online">
-                ONLINE
-            </span>
-
-            {% else %}
-
-            <span class="status offline">
-                OFFLINE
-            </span>
-
-            {% endif %}
-
-
-        </div>
-
-
-        <div class="server-buttons">
-
-            <form action="/dashboard/server/{{ server.id }}/start" method="POST" style="display:inline;">
-                <button type="submit">Start</button>
-            </form>
-
-            <form action="/dashboard/server/{{ server.id }}/stop" method="POST" style="display:inline;">
-                <button type="submit">Stop</button>
-            </form>
-
-        </div>
-
-
-    </div>
-
-
+    </a>
 
     {% else %}
-
 
     <p>
         No game servers found.
     </p>
 
-
     {% endfor %}
 
-
 </div>
-
 
 {% endblock %}

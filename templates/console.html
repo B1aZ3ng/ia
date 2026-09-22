@@ -33,14 +33,20 @@
 </div>
 
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
 
 <script>
 
+    // Server this console belongs to
+    const serverId = {{ serverId }};
+
     const socket = io();
+
+
+    // =========================
+    // Terminal
+    // =========================
 
     const terminal = new Terminal({
         cursorBlink: true,
@@ -71,9 +77,29 @@
     });
 
 
-    // Command input
-    let currentCommand = "";
+    // =========================
+    // Join server room
+    // =========================
 
+    socket.on("connect", () => {
+
+        console.log(
+            "Connected. Joining console for server:",
+            serverId
+        );
+
+        socket.emit("join", {
+            serverId: serverId
+        });
+
+    });
+
+
+    // =========================
+    // Command input
+    // =========================
+
+    let currentCommand = "";
 
     terminal.onData((data) => {
 
@@ -83,6 +109,7 @@
             if (currentCommand.trim() !== "") {
 
                 socket.emit("command", {
+                    serverId: serverId,
                     command: currentCommand
                 });
 
@@ -128,8 +155,13 @@
     });
 
 
-    // Get history on refresh
+    // =========================
+    // Console history
+    // =========================
+
     socket.on("console_history", (data) => {
+
+        terminal.clear();
 
         for (const message of data.messages) {
             terminal.write(message);
@@ -138,7 +170,10 @@
     });
 
 
-    // Receive new output
+    // =========================
+    // New server output
+    // =========================
+
     socket.on("console_output", (data) => {
 
         terminal.write(data.message);
@@ -146,13 +181,28 @@
     });
 
 
-    socket.on("connect", () => {
-        console.log("Connected to server");
+    // =========================
+    // Server status
+    // =========================
+
+    socket.on("server_status", (data) => {
+
+        console.log(
+            "Server status:",
+            data.online
+        );
+
     });
 
 
+    // =========================
+    // Disconnect
+    // =========================
+
     socket.on("disconnect", () => {
+
         console.log("Disconnected from server");
+
     });
 
 </script>

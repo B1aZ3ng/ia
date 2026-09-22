@@ -4,8 +4,7 @@ import dashboard
 from database import db, User, GameServer
 from hashlib import sha1
 from sqlalchemy import select
-from game_creator import loadGames
-
+ 
 
 auth = flask.Blueprint('auth', __name__)
 
@@ -59,7 +58,7 @@ def signup():
                 db.session.add(newUser)
                 db.session.commit()
                 flash ("Account succesfully created for:", username)
-                loadGames
+                loadGames()
                 return redirect(url_for("index"))
                 
     return render_template('signup.html')

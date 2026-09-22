@@ -1,20 +1,13 @@
 
 import requests
 from pathlib import Path
-from database import db, GameServer, User
+from database import db, GameServer
 import subprocess
-import os
-import hashlib
-import re
-import urllib.request
-import pty
 import threading
-from collections.abc import Sequence
 from collections import deque
-import time
-import globals
-import json
-from sqlalchemy import select
+
+
+
 #from game_factory import GameCreator
 
 
@@ -23,7 +16,7 @@ class IOStream:
     def __init__(self, path, command, max_log_lines=10000):
         self.history = deque(maxlen=max_log_lines)
         self.lock = threading.Lock()
-
+        print (path,command)
         self.process = subprocess.Popen(
             command,
             stdin=subprocess.PIPE,
@@ -33,6 +26,8 @@ class IOStream:
             cwd=path,
             bufsize=1
         )
+        #TMP:
+        #self.read_output(print)
 
     def send_command(self, command):
         if self.process.poll() is None:
@@ -40,7 +35,7 @@ class IOStream:
             self.process.stdin.flush()
 
     def is_alive(self):
-        return self.process.poll() is None
+        return (self.process.poll() is None)
 
     def get_history(self):
         with self.lock:
@@ -60,7 +55,7 @@ class Installer:
     
 
     @staticmethod
-    def addToDB(id,name,gameType,path,ownerID):
+    def add_to_db(id,name,gameType,path,ownerID):
         new_game = GameServer(
             serverId = id,
             serverName = name,

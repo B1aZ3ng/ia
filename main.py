@@ -1,11 +1,11 @@
 from flask import Flask, render_template
 from database import db,User,GameServer
-import auth
-import dashboard
+import auth, dashboard ,server
 import globals
 from sqlalchemy import select
 #from game import GameCreator
 from game_creator import loadGames
+from console import socketio
 
 
 
@@ -16,8 +16,11 @@ db.init_app(app)
 
 app.secret_key = "49d180ecf56132819571bf39d9b7b342522a2ac6d23c1418d3338251bfe469c8" #idk flask.flash() needs it, its sha256 of 67 lol
 
+socketio.init_app(app)
 app.register_blueprint(auth.auth)
 app.register_blueprint(dashboard.dash)
+app.register_blueprint(server.server)
+
 
 
 @app.route("/")
@@ -32,7 +35,7 @@ if __name__ == "__main__":
         loadGames()
     
     
-    app.run(host="0.0.0.0", port=25565, debug=True)
+    app.run(host="0.0.0.0",port="5000", debug=True)
 
 
 

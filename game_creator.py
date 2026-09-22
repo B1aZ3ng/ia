@@ -5,6 +5,7 @@ from game_utils import Installer
 import json
 from database import db, User, GameServer
 from sqlalchemy import select
+
 class GameCreator: #factory pattern to create the games
 
     def __init__(self):
@@ -14,7 +15,7 @@ class GameCreator: #factory pattern to create the games
         print (self.games)
 
 
-    def createGame(self, gameType, name, id, owner,serverType=None,version=None):
+    def createGame(self, gameType, name, serverId, owner,serverType=None,version=None):
 
         if gameType not in self.games:
             raise Exception("Game does not exist")
@@ -30,17 +31,17 @@ class GameCreator: #factory pattern to create the games
                     raise Exception("Version does not exist")
                 
                     
-                path = globals.GAME_PATH / Path(str(id)+"/")
+                path = globals.GAME_PATH / Path(str(serverId)+"/")
                 path.mkdir(parents=True,exist_ok=True)
 
                 download = self.games["Minecraft"][serverType][version]["download"]
                 Installer.install_minecraft(download,path)
-                return Minecraft(name,"Minecraft " + serverType ,path,owner)
+                return Minecraft("Minecraft " + serverType ,path,owner,serverId)
 
-    def loadGame(self,gameType,name,path,owner):
+    def loadGame(self,gameType,name,path,owner,serverId):
         match gameType:
             case "Minecraft":
-                return Minecraft(name,path,owner)
+                return Minecraft(name,path,owner,serverId)
 
 
     def addToDB(self,name):
@@ -50,9 +51,9 @@ class GameCreator: #factory pattern to create the games
 def loadGames():
     gc = GameCreator()
     for userId in db.session.execute(select(User.userId)):
-        userId = userId[0]
+        userId = userId[0] #because its a tuple for some reason like (1,) or (2,)...
         tmp = {}
-        for serverId,serverName,serverPath,gameType in db.session.execute(select(GameServer.serverId,GameServer.serverName,GameServer.serverPath,GameServer.gameType)):
-            tmp[serverId] = gc.loadGame(gameType,serverName,serverPath,userId)
+        for serverId,serverName,serverPath,gameType in db.session.execute(select(GameServer.serverId,GameServer.serverName,GameServer.serverPath,GameServer.gameType).where(GameServer.ownerId == userId)):
+            tmp[serverId] = gc.loadGame(gameType,serverName,serverPath,userId,serverId)
         globals.GAME_SERVERS[userId] = tmp
-    print ('six seven')
+    

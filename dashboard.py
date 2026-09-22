@@ -11,6 +11,7 @@ dash = flask.Blueprint("dashboard", __name__)
 
 @dash.route("/dashboard", methods=["GET","POST"])
 def index():
+    print (globals.GAME_SERVERS)
     if not session.get("userId"):
         flash("You are not signed in")
         return redirect("login")
@@ -19,12 +20,9 @@ def index():
     servers = []
     
     for key in globals.GAME_SERVERS[id]:
-        sv = globals.GAME_SERVERS[id][key]
-        servers.append({"serverName":sv.getName(),"gameType":sv.gameType,"serverId":key,"running":sv.isOn()})
-    
-    #if 
+        sv = globals.GAME_SERVERS[id][key]        
+        servers.append({"serverName":sv.get_name(),"gameType":sv.get_gameType(),"serverId":sv.get_id(),"running":sv.status(),"join":sv.get_joinCmd()})
 
-    
     return render_template("dashboard.html",servers=servers,accountName=session.get("username"))
 
 @dash.route("/dashboard/settings", methods=["GET","POST"])
@@ -48,14 +46,19 @@ def create_server():
                 db.session.commit()
 
                 serverId = newGame.serverId
-                game = gc.createGame("Minecraft",serverName,serverId,session.get("id"),serverType,version)
+                game = gc.createGame("Minecraft",serverName,serverId,session.get("userId"),serverType,version)
 
-                newGame.serverPath = game.getPath()
+                newGame.serverPath = str(game.get_path())
                 db.session.commit()
 
-                globals.GAME_SERVERS[session.get("id")][serverId] = game
+                globals.GAME_SERVERS[session.get("userId")][serverId] = game
         flash("Server Created")
+        return redirect("/dashboard")
         
 
 
     return render_template("create_server.html",accountName=session.get("username"))
+
+
+### functions for start/stop
+
