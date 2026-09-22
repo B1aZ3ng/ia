@@ -11,7 +11,7 @@ dash = flask.Blueprint("dashboard", __name__)
 
 @dash.route("/dashboard", methods=["GET","POST"])
 def index():
-    print (globals.GAME_SERVERS)
+    #print (globals.GAME_SERVERS)
     if not session.get("userId"):
         flash("You are not signed in")
         return redirect("login")

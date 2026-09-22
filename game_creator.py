@@ -12,7 +12,7 @@ class GameCreator: #factory pattern to create the games
         self.installer = Installer()
         with open("games.json") as file:
             self.games = json.load(file)
-        print (self.games)
+        #print (self.games)
 
 
     def createGame(self, gameType, name, serverId, owner,serverType=None,version=None):
@@ -36,7 +36,7 @@ class GameCreator: #factory pattern to create the games
 
                 download = self.games["Minecraft"][serverType][version]["download"]
                 Installer.install_minecraft(download,path)
-                return Minecraft("Minecraft " + serverType ,path,owner,serverId)
+                return Minecraft(name,path,owner,serverId)
 
     def loadGame(self,gameType,name,path,owner,serverId):
         match gameType:
@@ -48,7 +48,7 @@ class GameCreator: #factory pattern to create the games
         pass
 
         
-def loadGames():
+def load_games():
     gc = GameCreator()
     for userId in db.session.execute(select(User.userId)):
         userId = userId[0] #because its a tuple for some reason like (1,) or (2,)...

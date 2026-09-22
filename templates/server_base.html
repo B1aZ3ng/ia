@@ -3,6 +3,7 @@
 {% block title %}{{ serverName }}{% endblock %}
 
 {% block head %}
+
 <style>
     .server-layout {
         display: flex;
@@ -15,21 +16,19 @@
         width: 220px;
         flex-shrink: 0;
 
-        background: #181818;
-        border-right: 1px solid #333;
-
         padding: 15px 10px;
+
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
     }
 
     .server-name {
         padding: 10px;
         margin-bottom: 10px;
-
         font-size: 16px;
         font-weight: bold;
 
-        color: #eee;
-        border-bottom: 1px solid #333;
     }
 
     .server-nav {
@@ -39,34 +38,81 @@
 
     .server-nav a {
         display: block;
-
         padding: 11px 12px;
 
-        color: #bbb;
         text-decoration: none;
-
         border-radius: 5px;
         transition: background 0.15s, color 0.15s;
     }
 
-    .server-nav a:hover {
-        background: #292929;
-        color: #fff;
+    .server-nav a:hover {}
+
+    .server-nav a.active {}
+
+
+    /* Server information at bottom */
+
+    .server-bottom {
+        margin-top: auto;
+        padding: 15px 10px 5px;
+
     }
 
-    .server-nav a.active {
-        background: #333;
-        color: #fff;
+    .server-info {
+
+        margin: 7px 0;
+        font-size: 13px;
     }
+
+    .server-info span {}
+
+    .status {
+        font-weight: bold;
+    }
+
+    .online {
+        color: #00ff00;
+    }
+
+    .offline {
+        color: #ff0000;
+    }
+
+
+    /* Buttons */
+
+    .server-buttons {
+        display: flex;
+        gap: 6px;
+        margin-top: 12px;
+    }
+
+    .server-buttons form {
+        flex: 1;
+    }
+
+    .server-buttons button {
+        width: 100%;
+        border: none;
+        padding: 8px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .server-buttons button:hover {}
+
 
     /* Main server content */
+
     .server-content {
         flex: 1;
         min-width: 0;
         padding: 20px;
     }
 </style>
+
 {% endblock %}
+
 
 {% block content %}
 
@@ -77,6 +123,7 @@
         <div class="server-name">
             {{ serverName }}
         </div>
+
 
         <nav class="server-nav">
 
@@ -98,13 +145,169 @@
 
         </nav>
 
+
+        <!-- Bottom server information -->
+
+        <div class="server-bottom">
+
+            <div class="server-info">
+                Status:
+
+                <span id="status-{{ serverId }}" class="status {% if running %}online{% else %}offline{% endif %}">
+                    {% if running %}
+                    ONLINE
+                    {% else %}
+                    OFFLINE
+                    {% endif %}
+                </span>
+            </div>
+
+
+            <div class="server-info">
+                Memory:
+                <span id="memory-{{ serverId }}">
+                    --
+                </span>
+                GB
+            </div>
+
+
+            <div class="server-info">
+                Storage:
+
+                <span id="storage-{{ serverId }}">
+                    --
+                </span>
+            </div>
+
+
+            <div class="server-buttons">
+                <button type="button" onclick="start_server({{ serverId }})">
+                    Start
+                </button>
+
+                <button type="button" onclick="stop_server({{ serverId }})">
+                    Stop
+                </button>
+            </div>
+
+        </div>
+
     </aside>
 
+
     <section class="server-content">
+
         {% block server_content %}
         {% endblock %}
+
     </section>
 
 </div>
 
+
+<script>
+    async function start_server(serverId) {
+        const response = await fetch(`/server/${serverId}/start`, { method: "POST" });
+    }
+    async function stop_server(serverId) {
+        const response = await fetch(`/server/${serverId}/stop`, { method: "POST" });
+    }
+    async function updateServer(serverId) {
+
+        try {
+
+            const response =
+                await fetch(`/server/${serverId}/update`);
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Failed to fetch server status"
+                );
+
+            }
+
+
+            const data =
+                await response.json();
+
+
+            // Get elements
+
+            const statusElement =
+                document.getElementById(
+                    `status-${serverId}`
+                );
+
+            const memoryElement =
+                document.getElementById(
+                    `memory-${serverId}`
+                );
+
+            const storageElement =
+                document.getElementById(
+                    `storage-${serverId}`
+                );
+
+
+            // Update status
+
+            if (data.running) {
+
+                statusElement.textContent = "ONLINE";
+
+                statusElement.classList.remove("offline");
+                statusElement.classList.add("online");
+
+            } else {
+
+                statusElement.textContent = "OFFLINE";
+
+                statusElement.classList.remove("online");
+                statusElement.classList.add("offline");
+
+            }
+
+
+            // Update memory
+
+            memoryElement.textContent =
+                data.memory;
+
+
+            // Update storage
+
+            storageElement.textContent =
+                data.storage;
+
+
+        } catch (error) {
+
+            console.error(
+                `Failed to update server ${serverId}:`,
+                error
+            );
+
+        }
+
+    }
+
+
+    // Update immediately
+
+    updateServer({{ serverId }});
+
+
+    // Update every 3 seconds
+
+    setInterval(
+        () => updateServer({{ serverId }}),
+        3000
+    );
+
+</script>
+
 {% endblock %}
+```

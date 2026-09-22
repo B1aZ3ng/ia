@@ -1,6 +1,6 @@
 #generated with chatgpt to test stuff 
 #redo manually
-from flask import Flask, render_template, Blueprint,session, redirect,flash,url_for
+from flask import Flask, render_template, Blueprint,session, redirect,flash,url_for,Response,jsonify
 from flask_socketio import SocketIO, join_room, emit
 from pathlib import Path
 import threading
@@ -41,8 +41,8 @@ def start_server(serverId):
     if redir: return redir
     server = globals.GAME_SERVERS[session.get("userId")][serverId]
     room = "room_" + str(serverId)
-    server.start(lambda x: send_log(x,room)) #never thought i'd use lambda functions ever again
-    return redirect("/dashboard")
+    server.start(lambda x: send_log(x,room)) #never thought i'd use lambda functions ever again - basically creates the function specific to each room
+    return Response("ok",status=200)
 
 
 @server.route("/<int:serverId>/stop", methods=["POST"])
@@ -51,6 +51,11 @@ def stop_server(serverId):
     if redir: return redir
     server = globals.GAME_SERVERS[session.get("userId")][serverId]
     server.stop()
-    return redirect("/dashboard")
+    return Response("ok",status=200) #does not mean its succesful
 
 
+@server.route("/<int:serverId>/update")
+def update(serverId):
+    sv = globals.GAME_SERVERS[session.get("userId")][serverId]
+    data = {"running":sv.status(),"memory":round(sv.get_memory_usage()/(10**9),2),"storage":0}
+    return jsonify(data)

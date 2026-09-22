@@ -4,7 +4,7 @@ import globals
 socketio = SocketIO(cors_allowed_origins="*")
 
 def send_log(line,room):
-    print(line, end="")
+#    print(line, end="")
     socketio.emit("console_output",{"message": line},to=room)
 
 

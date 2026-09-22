@@ -8,11 +8,26 @@ Dashboard
 {% block head %}
 
 <style>
-    .dashboard-container {
-        padding: 20px;
+    .dashboard {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 20px;
+        padding: 20px;
+    }
+
+    .server-card {
+        border: 1px solid;
+        border-radius: 10px;
+        padding: 20px;
+    }
+
+    .server-title {
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    .server-info {
+        margin: 8px 0;
     }
 
     .server-link {
@@ -20,62 +35,21 @@ Dashboard
         color: inherit;
     }
 
-    .server-card {
-        background: #1b1b1b;
-        border: 1px solid #333;
-        border-radius: 12px;
-        padding: 20px;
-        min-height: 180px;
-    }
-
-    .server-card:hover {
-        border-color: #555;
-    }
-
-    .server-title {
-        font-size: 22px;
-        font-weight: bold;
-        margin-bottom: 15px;
-    }
-
-    .server-info {
-        color: #aaa;
-        margin: 8px 0;
-    }
-
-    .status {
-        font-weight: bold;
-    }
-
     .online {
-        color: #4caf50;
+        color: #00ff00;
     }
 
     .offline {
-        color: #ff5555;
+        color: #ff0000;
     }
 
     .server-buttons {
-        margin-top: 20px;
+        margin-top: 15px;
     }
 
-    button {
-        background: #333;
-        color: white;
-        border: none;
-        padding: 10px 15px;
-        border-radius: 6px;
-        cursor: pointer;
-    }
-
-    button:hover {
-        background: #444;
-    }
-
-    @media(max-width:700px) {
-        .dashboard-container {
-            grid-template-columns: 1fr;
-        }
+    .server-buttons button {
+        padding: 8px 12px;
+        margin-right: 5px;
     }
 </style>
 
@@ -88,12 +62,14 @@ Dashboard
     <button>Create Server</button>
 </a>
 
-<div class="dashboard-container">
+
+<div class="dashboard">
 
     {% for server in servers %}
 
-    <a href="/server/{{ server.serverId }}/console" class="server-link">
-        <div class="server-card">
+    <div class="server-card">
+
+        <a href="/server/{{ server.serverId }}/console" class="server-link">
 
             <div class="server-title">
                 {{ server.serverName }}
@@ -105,49 +81,194 @@ Dashboard
 
             <div class="server-info">
                 Status:
-
-                {% if server.running %}
-                <span class="status online">
+                <span id="status-{{ server.serverId }}"
+                    class="{% if server.running %}online{% else %}offline{% endif %}">
+                    {% if server.running %}
                     ONLINE
-                </span>
-                {% else %}
-                <span class="status offline">
+                    {% else %}
                     OFFLINE
+                    {% endif %}
                 </span>
-                {% endif %}
+            </div>
+
+            <div class="server-info">
+                Memory:
+                <span id="memory-{{ server.serverId }}">
+                    --
+                </span>
+                GB
+            </div>
+
+            <div class="server-info">
+                Storage:
+                <span id="storage-{{ server.serverId }}">
+                    --
+                </span>
             </div>
 
             <div class="server-info">
                 IP: {{ server.join }}
             </div>
 
-            <div class="server-buttons">
+        </a>
 
-                <form action="/server/{{ server.serverId }}/start" method="POST" style="display:inline;">
 
-                    <button type="submit">Start</button>
+        <div class="server-buttons">
 
-                </form>
+            <button type="button" onclick="start_server({{ server.serverId }})">
+                Start
+            </button>
 
-                <form action="/server/{{ server.serverId }}/stop" method="POST" style="display:inline;">
-
-                    <button type="submit">Stop</button>
-
-                </form>
-
-            </div>
+            <button type="button" onclick="stop_server({{ server.serverId }})">
+                Stop
+            </button>
 
         </div>
-    </a>
+
+    </div>
 
     {% else %}
 
-    <p>
-        No game servers found.
-    </p>
+    <p>No game servers found.</p>
 
     {% endfor %}
 
 </div>
 
+
+<script>
+
+    async function start_server(serverId) {
+
+        try {
+
+            const response = await fetch(
+                `/server/${serverId}/start`,
+                {
+                    method: "POST"
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to start server");
+            }
+
+        } catch (error) {
+
+            console.error(error);
+
+        }
+
+    }
+
+
+    async function stop_server(serverId) {
+
+        try {
+
+            const response = await fetch(
+                `/server/${serverId}/stop`,
+                {
+                    method: "POST"
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to stop server");
+            }
+
+        } catch (error) {
+
+            console.error(error);
+
+        }
+
+    }
+
+
+    async function update_server(serverId) {
+
+        try {
+
+            const response =
+                await fetch(`/server/${serverId}/update`);
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch server status");
+            }
+
+            const data =
+                await response.json();
+
+
+            const statusElement =
+                document.getElementById(
+                    `status-${serverId}`
+                );
+
+            const memoryElement =
+                document.getElementById(
+                    `memory-${serverId}`
+                );
+
+            const storageElement =
+                document.getElementById(
+                    `storage-${serverId}`
+                );
+
+
+            if (data.running) {
+
+                statusElement.textContent = "ONLINE";
+
+                statusElement.classList.remove("offline");
+                statusElement.classList.add("online");
+
+            } else {
+
+                statusElement.textContent = "OFFLINE";
+
+                statusElement.classList.remove("online");
+                statusElement.classList.add("offline");
+
+            }
+
+
+            memoryElement.textContent = data.memory;
+            storageElement.textContent = data.storage;
+
+
+        } catch (error) {
+
+            console.error(
+                `Failed to update server ${serverId}:`,
+                error
+            );
+
+        }
+
+    }
+
+
+    async function update_all_servers() {
+
+        {% for server in servers %}
+
+        update_server({{ server.serverId }});
+
+    {% endfor %}
+
+}
+
+
+    update_all_servers();
+
+    setInterval(
+        update_all_servers,
+        3000
+    );
+
+</script>
+
 {% endblock %}
+```

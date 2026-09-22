@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from game_utils import Installer,IOStream
 import globals
+import threading
 
 
 
@@ -36,7 +37,8 @@ class Game: #blueprint
         self.joinCmd = globals.IP_ADDRESS + ":" + str(self.port) # may change for each game
 
 
-    def start(self): pass
+    def start(self,func):             
+        threading.Thread(target=self.ios.read_output,args=(func,),daemon=True).start()
     def stop(self): pass
     def isOn(self):
         if self.ios is None:
@@ -51,7 +53,6 @@ class Game: #blueprint
     def get_id(self): return self.id
     def get_joinCmd(self): return self.joinCmd #join command
     def get_history(self):
-        print (self.ios,self.ios.get_history())
         if self.status():
             return self.ios.get_history()
         else:
@@ -63,6 +64,7 @@ class Game: #blueprint
 
 class Minecraft(Game):
     def __init__(self,name,path,owner,id):
+        print (name,path,owner,id)
         super().__init__(name,path,owner,id)
         self.gameType = "Minecraft"
         #self.joinCmd = globals.IP_ADDRESS + ":" + self.port 
@@ -73,13 +75,19 @@ class Minecraft(Game):
     def start(self,func):
         if not self.status():
             self.ios = IOStream(self.path,["java", "-jar", "server.jar", "--nogui", "--port", str(self.port)])
-            self.ios.read_output(func)
+        super().start(func)
         
-            
+ 
 
     def stop(self): 
         if self.status():
             self.ios.send_command("stop")
+
+    def get_memory_usage(self):
+        if self.status():
+            return self.ios.get_memory_usage()
+        return 0
+
             
     
     

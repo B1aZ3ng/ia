@@ -1,4 +1,4 @@
-
+import psutil
 import requests
 from pathlib import Path
 from database import db, GameServer
@@ -16,7 +16,7 @@ class IOStream:
     def __init__(self, path, command, max_log_lines=10000):
         self.history = deque(maxlen=max_log_lines)
         self.lock = threading.Lock()
-        print (path,command)
+
         self.process = subprocess.Popen(
             command,
             stdin=subprocess.PIPE,
@@ -27,7 +27,7 @@ class IOStream:
             bufsize=1
         )
         #TMP:
-        #self.read_output(print)
+
 
     def send_command(self, command):
         if self.process.poll() is None:
@@ -47,6 +47,15 @@ class IOStream:
                 self.history.append(line)
 
             func(line)
+
+    def get_memory_usage(self):
+        if self.process is None:
+            return 0
+
+        process = psutil.Process(self.process.pid)
+        memory = process.memory_info().rss
+        return memory
+
 
 
 
