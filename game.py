@@ -4,10 +4,10 @@ import subprocess
 import requests
 import os
 from pathlib import Path
-from game_utils import Installer,IOStream
+from game_utils import IOStream,get_dir_size
 import globals
 import threading
-
+import shutil
 
 
 
@@ -35,6 +35,8 @@ class Game: #blueprint
         self.id = id
         self.port = 6750 + id
         self.joinCmd = globals.IP_ADDRESS + ":" + str(self.port) # may change for each game
+        self.storage=0
+        self.refresh_storage()
 
 
     def start(self,func):             
@@ -59,7 +61,17 @@ class Game: #blueprint
             return ""
     def send_command(self,line):
         self.ios.send_command(line)
-    #def update(): pass
+    def get_memory_usage(self):
+            if self.status():
+                return self.ios.get_memory_usage()
+            return 0
+    def get_storage_usage(self):
+        return self.storage
+    
+    # procedure to refresh the storage - done whenever server is started
+    def refresh_storage(self):
+        self.storage = get_dir_size(self.path)
+
 
 
 class Minecraft(Game):
@@ -76,17 +88,16 @@ class Minecraft(Game):
         if not self.status():
             self.ios = IOStream(self.path,["java", "-jar", "server.jar", "--nogui", "--port", str(self.port)])
         super().start(func)
+        self.refresh_storage()
         
  
 
     def stop(self): 
         if self.status():
             self.ios.send_command("stop")
+        self.refresh_storage() # refresh stored storage value
 
-    def get_memory_usage(self):
-        if self.status():
-            return self.ios.get_memory_usage()
-        return 0
+    
 
             
     

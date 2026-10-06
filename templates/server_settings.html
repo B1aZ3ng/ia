@@ -1,0 +1,20 @@
+{% extends "server_base.html" %}
+
+{% block title %}{{ serverName }} - Console{% endblock %}
+
+{% block head %}
+{{ super() }}
+
+{% endblock %}
+
+{% block server_content %}
+<a href="/server/{{serverId}}/delete">
+    <button type="button">Delete server</button>
+</a>
+
+<form method="POST">
+    <label for="time">Select time:</label>
+    <input type="time" id="time" name="time" required>
+    <button type="submit">Submit</button>
+</form>
+{% endblock %}

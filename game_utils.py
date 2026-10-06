@@ -5,7 +5,7 @@ from database import db, GameServer
 import subprocess
 import threading
 from collections import deque
-
+import os
 
 
 #from game_factory import GameCreator
@@ -16,7 +16,6 @@ class IOStream:
     def __init__(self, path, command, max_log_lines=10000):
         self.history = deque(maxlen=max_log_lines)
         self.lock = threading.Lock()
-
         self.process = subprocess.Popen(
             command,
             stdin=subprocess.PIPE,
@@ -26,7 +25,7 @@ class IOStream:
             cwd=path,
             bufsize=1
         )
-        #TMP:
+
 
 
     def send_command(self, command):
@@ -58,37 +57,27 @@ class IOStream:
 
 
 
+# some functions
+
+def add_to_db(id,name,gameType,path,ownerID):
+    new_game = GameServer(serverId=id, serverName=name, gameType=gameType, serverPath=path, ownerID=ownerID)
+    db.session.add(new_game)
+    db.session.commit()
 
 
-class Installer:
-    
 
-    @staticmethod
-    def add_to_db(id,name,gameType,path,ownerID):
-        new_game = GameServer(
-            serverId = id,
-            serverName = name,
-            gameType = gameType,
-            serverPath = path,
-            ownerID = ownerID,
-        )
-        db.session.add(new_game)
-        db.session.commit()
-    
-    @staticmethod    
-    def install_minecraft(download,path): #download link #make sure ios already is in path of game file
-        print("downloading...")
-        response = requests.get(download)
-        if response.status_code == 200:
-            with open(path / Path("server.jar"), "wb") as f:
-                f.write(response.content)
-        
-        print("initialising...")
-    
-        with open(path / Path("eula.txt"), "w") as f:
-            f.write("eula=true\n")
-        print ("done")
-        
+#recursive function to get the size of a directory
+def get_dir_size (path):
+    total = 0
+    for f in os.listdir(path):
+        filepath = os.path.join(path,f)
+        if os.path.isdir(filepath):
+            #recursive case - that its another directory
+            total += get_dir_size(filepath)
+        else:
+            #base case - if its a file we can get the size of that file
+            total += os.path.getsize(filepath)
+    return total
 
 
         

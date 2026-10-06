@@ -151,11 +151,14 @@ def copyItem(serverId):
     fodestination = data['fodestination']
     fullSource = build_path(home_path,source, itemName)
     fullDestination = build_path(home_path,source, fodestination, destination)
+    
     try:
         shutil.copy2(fullSource, fullDestination)
+        globals.GAME_SERVERS[session.get("userId")][serverId].refresh_storage() # refresh storage
         return '1'
     except NotADirectoryError:
         shutil.copytree(fullSource, fullDestination)
+        globals.GAME_SERVERS[session.get("userId")][serverId].refresh_storage() # refresh storage
         return '1'
     else:
         return '0'
@@ -170,11 +173,14 @@ def moveItem(serverId):
     fodestination = data['fodestination']
     fullSource = build_path(home_path,source, itemName)
     fullDestination = build_path(home_path,source, fodestination, destination)
+    
     try:
         shutil.move(fullSource, fullDestination)
+        globals.GAME_SERVERS[session.get("userId")][serverId].refresh_storage() # refresh stored storage value
         return '1'
     except NotADirectoryError:
         shutil.copytree(fullSource, fullDestination)
+        globals.GAME_SERVERS[session.get("userId")][serverId].refresh_storage() # refresh storage
         return '1'
     else:
         return '0'
@@ -201,6 +207,7 @@ def newfile(serverId):
     try:
         with open(file_path, 'w') as fp:
             pass
+        globals.GAME_SERVERS[session.get("userId")][serverId].refresh_storage() # refresh stored storage value
         return "1"
     except IOError as e:
         return str(e)
@@ -215,7 +222,9 @@ def upload(serverId):
         return 'No file selected'
     elif f:
         f.save(os.path.join(target, secure_filename(f.filename)))
+        globals.GAME_SERVERS[session.get("userId")][serverId].refresh_storage() # refresh storage when uploading
         return "1"
+    
 
 @fb.route("/<int:serverId>/filebrowser/delete", methods = ['POST'])
 def delete(serverId):
@@ -230,18 +239,22 @@ def delete(serverId):
             try:
                 os.rmdir(target)
                 return "1"
+                globals.GAME_SERVERS[session.get("userId")][serverId].refresh_storage() # refresh stored storage value
             except IOError as e:
                 return str(e)
         else:
             try:
                 rmtree(target)
+                globals.GAME_SERVERS[session.get("userId")][serverId].refresh_storage() # refresh stored storage value
                 return "1"
+                
             except IOError as e:
                 return str(e)
     else:
         os.path.isfile(target)
         try:
             os.remove(target)
+            globals.GAME_SERVERS[session.get("userId")][serverId].refresh_storage() # refresh stored storage value
             return "1"
         except IOError as e:
             return str(e)
@@ -257,6 +270,7 @@ def rename(serverId):
     fullDestination = build_path(home_path,folder, dst)
     try:
         os.rename(target, fullDestination)
+        globals.GAME_SERVERS[session.get("userId")][serverId].refresh_storage() # refresh stored storage value
         return "1"
     except IOError as e:
         return str(e)

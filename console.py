@@ -4,21 +4,18 @@ import globals
 socketio = SocketIO(cors_allowed_origins="*")
 
 def send_log(line,room):
-#    print(line, end="")
+    print(line, end="")
+
     socketio.emit("console_output",{"message": line},to=room)
-
-
-def read_server_output(server):
-    server.read_output(send_log) 
-    if not server.isOn():
-        socketio.emit("server_status", {"online": False})
-
 
 @socketio.on("join")
 def handle_connect(data):
+    print ("join")
     serverId = int(data["serverId"])
     room = "room_" + str(serverId)
-    join_room(room) #one room for each server, as theres no way for flask to know otherwise which server their sending and receiving data from
+    #one room for each server, as theres no way for flask to know otherwise which server their sending 
+    #and receiving data from
+    join_room(room)     
     server = globals.GAME_SERVERS[session.get("userId")][serverId]
     history = server.get_history()
     
@@ -28,6 +25,10 @@ def handle_connect(data):
     socketio.emit("server_status", {"online": True})
     socketio.emit("console_history", {"messages": history})
 
+def read_server_output(server):
+    server.read_output(send_log) 
+    if not server.isOn():
+        socketio.emit("server_status", {"online": False})
 
 @socketio.on("command")
 def command(data):

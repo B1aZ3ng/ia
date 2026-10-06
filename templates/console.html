@@ -61,17 +61,12 @@
         scrollback: 10000,
         convertEol: true
     });
-
     const fitAddon = new FitAddon.FitAddon();
-
     terminal.loadAddon(fitAddon);
-
     terminal.open(
         document.getElementById("terminal")
     );
-
     fitAddon.fit();
-
     window.addEventListener("resize", () => {
         fitAddon.fit();
     });
@@ -95,74 +90,40 @@
     });
 
 
-    // =========================
+
     // Command input
-    // =========================
-
     let currentCommand = "";
-
     terminal.onData((data) => {
-
         // Enter
         if (data === "\r") {
-
             if (currentCommand.trim() !== "") {
-
                 socket.emit("command", {
                     serverId: serverId,
                     command: currentCommand
                 });
-
             }
-
             terminal.write("\r\n");
-
             currentCommand = "";
-
             return;
         }
-
-
         // Backspace
         if (data === "\x7f") {
-
             if (currentCommand.length > 0) {
-
                 currentCommand =
                     currentCommand.slice(0, -1);
-
                 terminal.write("\b \b");
             }
-
             return;
         }
-
-
-        // Ctrl+C
-        if (data === "\x03") {
-
-            terminal.write("^C\r\n");
-
-            currentCommand = "";
-
-            return;
-        }
-
-
         currentCommand += data;
-
         terminal.write(data);
     });
 
 
-    // =========================
+
     // Console history
-    // =========================
-
     socket.on("console_history", (data) => {
-
         terminal.clear();
-
         for (const message of data.messages) {
             terminal.write(message);
         }
@@ -170,28 +131,19 @@
     });
 
 
-    // =========================
     // New server output
-    // =========================
-
     socket.on("console_output", (data) => {
-
         terminal.write(data.message);
-
     });
 
 
-    // =========================
+
     // Server status
-    // =========================
-
     socket.on("server_status", (data) => {
-
         console.log(
             "Server status:",
             data.online
         );
-
     });
 
 
